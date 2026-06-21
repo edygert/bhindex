@@ -228,6 +228,7 @@ class HarvestService:
         source_id = self.repo.get_or_create_source(result.source.value)
         snapshot_id = self.snapshots.save(result.url, result.html, result.status)
         counts = self.repo.save_event(event, source_id, snapshot_id)
+        self.repo.prune_orphan_speakers()  # drop speaker rows orphaned by re-harvest identity changes
         self.repo.commit()
         return HarvestReport(
             source=result.source,

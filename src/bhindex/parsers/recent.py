@@ -62,7 +62,7 @@ def _speakers(session: dict[str, Any], index: dict[str, dict]) -> list[SpeakerDT
         person = index.get(str(ref.get("person_id")))
         if not person:
             continue
-        name = " ".join(p for p in (person.get("first_name"), person.get("last_name")) if p).strip()
+        name = clean(" ".join(p for p in (person.get("first_name"), person.get("last_name")) if p))
         if not name:
             continue
         out.append(

@@ -67,6 +67,10 @@ def test_reharvest_replaces_speaker_links():
     ).fetchone()[0]
     assert links == 1  # one current speaker, not two
 
+    pruned = repo.prune_orphan_speakers()
+    assert pruned == 1  # the obsolete "Foo &amp; Bar" speaker row
+    assert conn.execute("SELECT COUNT(*) FROM speakers").fetchone()[0] == 1
+
 
 def test_fts_search_hits_title_and_speaker():
     conn = connect(":memory:")

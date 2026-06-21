@@ -30,3 +30,12 @@ def test_titles_decode_html_entities():
     feed = {"sessions": {"1": {"id": 1, "title": "That Site? It&#39;s &amp; More"}}, "speakers": {}}
     ev = recent.parse_feed(feed, source_url=FEED_URL)
     assert ev.sessions[0].title == "That Site? It's & More"
+
+
+def test_speaker_names_decode_html_entities():
+    feed = {
+        "sessions": {"1": {"id": 1, "title": "T", "speakers": [{"person_id": 9}]}},
+        "speakers": {"9": {"person_id": 9, "first_name": "Leecraso", "last_name": "&nbsp;"}},
+    }
+    ev = recent.parse_feed(feed, source_url=FEED_URL)
+    assert ev.sessions[0].speakers[0].name == "Leecraso"

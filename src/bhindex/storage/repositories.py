@@ -209,5 +209,17 @@ class Repository:
         )
         self.conn.commit()
 
+    def prune_orphan_speakers(self) -> int:
+        """Delete speaker rows no longer linked to any session.
+
+        Re-harvesting where a speaker's identity changed (e.g. an affiliation/name that now decodes
+        differently) re-links the session to the new row and leaves the old one orphaned. Returns the
+        number pruned. Safe: a speaker shared across events is only removed when no session links it.
+        """
+        cur = self.conn.execute(
+            "DELETE FROM speakers WHERE id NOT IN (SELECT speaker_id FROM session_speakers)"
+        )
+        return cur.rowcount or 0
+
     def commit(self) -> None:
         self.conn.commit()
