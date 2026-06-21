@@ -1,5 +1,8 @@
 # bhindex
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/)
+
 Local-first harvester and index for **Black Hat** conference session metadata. It crawls event
 metadata into a local SQLite database and gives you full-text search over it — **metadata only; it
 never downloads presentation files or other binaries.**
@@ -104,3 +107,11 @@ uv run ruff check .  # lint
 
 Tests run fully offline against fixture data in `tests/fixtures/`. The integration suite pins the
 Phase-1 invariant that harvesting writes only metadata + HTML snapshots, never binary files.
+
+## License
+
+[MIT](LICENSE) © 2026 Evan H. Dygert.
+
+bhindex indexes only **metadata** (titles, abstracts, speakers, and links). It does not redistribute
+Black Hat presentation files; all material links point back to their original sources. Respect the
+source sites' terms of use and the Internet Archive's access policies when harvesting.
