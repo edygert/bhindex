@@ -139,7 +139,40 @@ def search(
             return
         for row in rows:
             speakers = f" — {row['speakers_text']}" if row["speakers_text"] else ""
-            typer.echo(f"[{row['event_name']}] {row['title']}{speakers}")
+            typer.echo(f"#{row['id']:<5} [{row['event_name']}] {row['title']}{speakers}")
+        typer.echo("\nUse 'bhindex show <id>' for full session detail.")
+
+
+@app.command()
+def show(
+    session_id: int = typer.Argument(..., help="Session id (the #number from `search`)."),
+    data_dir: DataDir = _data_dir_opt,
+) -> None:
+    """Show full detail for one session: speakers, abstract, and material links."""
+    with _container(data_dir) as app_:
+        s = app_.sessions.get(session_id)
+        if s is None:
+            typer.secho(f"no session with id {session_id}", fg=typer.colors.RED)
+            raise typer.Exit(1)
+
+        typer.secho(s.title, bold=True)
+        meta = " · ".join(x for x in (s.event_name, s.track, s.room, s.starts_at) if x)
+        if meta:
+            typer.echo(meta)
+        if s.speakers:
+            names = ", ".join(
+                sp.name + (f" ({sp.affiliation})" if sp.affiliation else "") for sp in s.speakers
+            )
+            typer.echo(f"Speakers: {names}")
+        typer.echo(f"Source:   {s.source_url}")
+        if s.abstract:
+            typer.echo(f"\n{s.abstract}")
+        if s.materials:
+            typer.echo("\nMaterials (links only — not downloaded):")
+            for m in s.materials:
+                typer.echo(f"  [{m.kind.value}] {m.title}  {m.url}")
+        else:
+            typer.echo("\nMaterials: none")
 
 
 @app.command()

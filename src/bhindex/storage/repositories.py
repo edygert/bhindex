@@ -90,14 +90,17 @@ class Repository:
         counts: SaveCounts,
     ) -> int:
         speakers_text = ", ".join(sp.name for sp in s.speakers)
+        materials_text = ", ".join(m.title for m in s.materials if m.title)
         row = self.conn.execute(
             """
             INSERT INTO sessions(event_id, slug, title, abstract, track, room, starts_at,
-                                 speakers_text, source_id, source_url, snapshot_id, last_refreshed)
-            VALUES(?,?,?,?,?,?,?,?,?,?,?, datetime('now'))
+                                 speakers_text, materials_text, source_id, source_url, snapshot_id,
+                                 last_refreshed)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?, datetime('now'))
             ON CONFLICT(event_id, slug) DO UPDATE SET
                 title=excluded.title, abstract=excluded.abstract, track=excluded.track,
                 room=excluded.room, starts_at=excluded.starts_at, speakers_text=excluded.speakers_text,
+                materials_text=excluded.materials_text,
                 source_id=excluded.source_id, source_url=excluded.source_url,
                 snapshot_id=COALESCE(excluded.snapshot_id, sessions.snapshot_id),
                 last_refreshed=datetime('now')
@@ -105,7 +108,7 @@ class Repository:
             """,
             (
                 event_id, s.slug, s.title, s.abstract, s.track, s.room, s.starts_at,
-                speakers_text, source_id, s.source_url, snapshot_id,
+                speakers_text, materials_text, source_id, s.source_url, snapshot_id,
             ),
         ).fetchone()
         session_id = row[0]
@@ -159,6 +162,33 @@ class Repository:
             LIMIT ?
             """,
             (query, limit),
+        ).fetchall()
+
+    def get_session(self, session_id: int) -> sqlite3.Row | None:
+        return self.conn.execute(
+            """
+            SELECT s.id, s.slug, s.title, s.abstract, s.track, s.room, s.starts_at, s.source_url,
+                   e.slug AS event_slug, e.name AS event_name
+            FROM sessions s JOIN events e ON e.id = s.event_id
+            WHERE s.id = ?
+            """,
+            (session_id,),
+        ).fetchone()
+
+    def get_session_speakers(self, session_id: int) -> list[sqlite3.Row]:
+        return self.conn.execute(
+            """
+            SELECT sp.name, sp.affiliation, sp.bio
+            FROM speakers sp JOIN session_speakers ss ON ss.speaker_id = sp.id
+            WHERE ss.session_id = ? ORDER BY sp.name
+            """,
+            (session_id,),
+        ).fetchall()
+
+    def get_session_materials(self, session_id: int) -> list[sqlite3.Row]:
+        return self.conn.execute(
+            "SELECT title, url, kind FROM materials WHERE session_id = ? ORDER BY kind, title",
+            (session_id,),
         ).fetchall()
 
     def stats(self) -> dict[str, int]:

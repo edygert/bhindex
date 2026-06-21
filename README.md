@@ -51,7 +51,8 @@ uv run bhindex harvest us-17                # 2017: materials backfilled from /d
 # harvest shows a live progress monitor and a per-event validation report (anomalies / missing data).
 uv run bhindex stats                        # row counts + per-source/per-event coverage
 uv run bhindex events                       # list harvested events
-uv run bhindex search "kernel exploit"      # full-text search (title/abstract/speakers/track)
+uv run bhindex search "kernel exploit"      # full-text search; prints a #id per result
+uv run bhindex show 1234                     # full detail for one session (speakers, abstract, links)
 
 # offline / manually-saved page:
 uv run bhindex ingest-file ./sessions.json --url https://www.blackhat.com/us-24/briefings/schedule/sessions.json

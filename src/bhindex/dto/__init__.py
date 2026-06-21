@@ -5,6 +5,7 @@ from .contracts import (
     HarvestReport,
     IngestPayload,
     MaterialDTO,
+    SessionDetailDTO,
     SessionDTO,
     SpeakerDTO,
 )
@@ -14,6 +15,7 @@ __all__ = [
     "HarvestReport",
     "IngestPayload",
     "MaterialDTO",
+    "SessionDetailDTO",
     "SessionDTO",
     "SpeakerDTO",
 ]

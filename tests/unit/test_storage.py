@@ -81,3 +81,36 @@ def test_fts_search_hits_title_and_speaker():
 
     assert [r["title"] for r in repo.search_sessions('"kernel"')] == ["Breaking the Kernel"]
     assert repo.search_sessions('"Alice"')  # speaker indexed
+
+
+def test_fts_indexes_material_titles():
+    conn = connect(":memory:")
+    migrations.apply(conn)
+    repo = Repository(conn)
+    ev = _event()
+    ev.sessions[0].materials = [
+        MaterialDTO(title="param-miner", url="https://x/p.zip", kind=MaterialKind.TOOL)
+    ]
+    repo.save_event(ev, repo.get_or_create_source("wayback"))
+    repo.commit()
+    assert [r["title"] for r in repo.search_sessions('"param"')] == ["Breaking the Kernel"]
+
+
+def test_session_service_get_detail():
+    from bhindex.services.session_service import SessionService
+
+    conn = connect(":memory:")
+    migrations.apply(conn)
+    repo = Repository(conn)
+    repo.save_event(_event(), repo.get_or_create_source("wayback"))
+    repo.commit()
+
+    session_id = conn.execute("SELECT id FROM sessions").fetchone()[0]
+    svc = SessionService(repo)
+    detail = svc.get(session_id)
+    assert detail.title == "Breaking the Kernel"
+    assert detail.event_name == "USA 2024"
+    assert detail.speakers[0].name == "Alice Lee"
+    assert detail.speakers[0].affiliation == "Acme"
+    assert detail.materials[0].kind.value == "slides"
+    assert svc.get(999_999) is None

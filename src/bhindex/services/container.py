@@ -15,6 +15,7 @@ from bhindex.storage.snapshots import SnapshotStore
 
 from .harvest_service import HarvestService
 from .search_service import SearchService
+from .session_service import SessionService
 from .stats_service import StatsService
 
 
@@ -32,6 +33,7 @@ class ServiceContainer:
         # Public service API — the only surface the frontends touch.
         self.harvest = HarvestService(self.settings, self.repo, self.snapshots)
         self.search = SearchService(self.repo)
+        self.sessions = SessionService(self.repo)
         self.stats = StatsService(self.repo)
 
     def init_db(self) -> int:

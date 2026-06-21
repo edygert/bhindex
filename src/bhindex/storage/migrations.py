@@ -7,7 +7,7 @@ from importlib import resources
 
 from .db import require_fts5
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2  # v2: sessions.materials_text added to sessions_fts (material titles searchable)
 
 
 def _load_schema_sql() -> str:

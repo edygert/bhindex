@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     room           TEXT,
     starts_at      TEXT,
     speakers_text  TEXT NOT NULL DEFAULT '',  -- denormalized speaker names, for FTS
+    materials_text TEXT NOT NULL DEFAULT '',  -- denormalized material titles, for FTS
     source_id      INTEGER REFERENCES sources(id),
     source_url     TEXT,
     snapshot_id    INTEGER REFERENCES snapshots(id),
@@ -94,23 +95,23 @@ CREATE INDEX IF NOT EXISTS idx_materials_session ON materials(session_id);
 -- Full-text search over sessions. External-content table mirrors the sessions table; the triggers
 -- below keep it in sync. speakers_text is denormalized into sessions so a single trigger set covers it.
 CREATE VIRTUAL TABLE IF NOT EXISTS sessions_fts USING fts5(
-    title, abstract, track, speakers_text,
+    title, abstract, track, speakers_text, materials_text,
     content='sessions', content_rowid='id'
 );
 
 CREATE TRIGGER IF NOT EXISTS sessions_ai AFTER INSERT ON sessions BEGIN
-    INSERT INTO sessions_fts(rowid, title, abstract, track, speakers_text)
-    VALUES (new.id, new.title, new.abstract, new.track, new.speakers_text);
+    INSERT INTO sessions_fts(rowid, title, abstract, track, speakers_text, materials_text)
+    VALUES (new.id, new.title, new.abstract, new.track, new.speakers_text, new.materials_text);
 END;
 
 CREATE TRIGGER IF NOT EXISTS sessions_ad AFTER DELETE ON sessions BEGIN
-    INSERT INTO sessions_fts(sessions_fts, rowid, title, abstract, track, speakers_text)
-    VALUES ('delete', old.id, old.title, old.abstract, old.track, old.speakers_text);
+    INSERT INTO sessions_fts(sessions_fts, rowid, title, abstract, track, speakers_text, materials_text)
+    VALUES ('delete', old.id, old.title, old.abstract, old.track, old.speakers_text, old.materials_text);
 END;
 
 CREATE TRIGGER IF NOT EXISTS sessions_au AFTER UPDATE ON sessions BEGIN
-    INSERT INTO sessions_fts(sessions_fts, rowid, title, abstract, track, speakers_text)
-    VALUES ('delete', old.id, old.title, old.abstract, old.track, old.speakers_text);
-    INSERT INTO sessions_fts(rowid, title, abstract, track, speakers_text)
-    VALUES (new.id, new.title, new.abstract, new.track, new.speakers_text);
+    INSERT INTO sessions_fts(sessions_fts, rowid, title, abstract, track, speakers_text, materials_text)
+    VALUES ('delete', old.id, old.title, old.abstract, old.track, old.speakers_text, old.materials_text);
+    INSERT INTO sessions_fts(rowid, title, abstract, track, speakers_text, materials_text)
+    VALUES (new.id, new.title, new.abstract, new.track, new.speakers_text, new.materials_text);
 END;

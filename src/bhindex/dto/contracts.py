@@ -37,6 +37,23 @@ class SessionDTO(BaseModel):
     materials: list[MaterialDTO] = Field(default_factory=list)
 
 
+class SessionDetailDTO(BaseModel):
+    """A fully-resolved session for display (the `show` command / future detail screen)."""
+
+    id: int
+    slug: str
+    event_name: str
+    event_slug: str
+    title: str
+    abstract: str | None = None
+    track: str | None = None
+    room: str | None = None
+    starts_at: str | None = None
+    source_url: str
+    speakers: list[SpeakerDTO] = Field(default_factory=list)
+    materials: list[MaterialDTO] = Field(default_factory=list)
+
+
 class EventDTO(BaseModel):
     slug: str  # canonical edition slug, e.g. "us-2024"
     name: str  # display, e.g. "USA 2024"
