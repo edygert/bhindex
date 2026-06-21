@@ -13,6 +13,11 @@ from dataclasses import dataclass, field
 from bhindex.dto.contracts import EventDTO, SessionDTO, SpeakerDTO
 
 
+def _limit_clause(limit: int | None) -> tuple[str, tuple]:
+    """Return a ``LIMIT ?`` clause + params, or empty (no limit) when ``limit`` is None."""
+    return ("LIMIT ?", (limit,)) if limit is not None else ("", ())
+
+
 @dataclass
 class SaveCounts:
     events: int = 0
@@ -148,9 +153,10 @@ class Repository:
         return row[0]
 
     # ------------------------------------------------------------------ queries
-    def search_sessions(self, query: str, limit: int = 50) -> list[sqlite3.Row]:
+    def search_sessions(self, query: str, limit: int | None = 50) -> list[sqlite3.Row]:
+        limit_clause, params = _limit_clause(limit)
         return self.conn.execute(
-            """
+            f"""
             SELECT s.id, s.title, s.track, s.speakers_text, e.name AS event_name,
                    snippet(sessions_fts, 1, '[', ']', '…', 10) AS snippet,
                    bm25(sessions_fts) AS rank
@@ -159,10 +165,54 @@ class Repository:
             JOIN events e ON e.id = s.event_id
             WHERE sessions_fts MATCH ?
             ORDER BY rank
-            LIMIT ?
+            {limit_clause}
             """,
-            (query, limit),
+            (query, *params),
         ).fetchall()
+
+    def count_sessions(self, query: str) -> int:
+        return self.conn.execute(
+            "SELECT COUNT(*) FROM sessions_fts WHERE sessions_fts MATCH ?", (query,)
+        ).fetchone()[0]
+
+    # Searchable text for the LIKE fallback (short terms the trigram index can't match).
+    _SEARCH_TEXT = (
+        "(s.title || ' ' || COALESCE(s.abstract,'') || ' ' || COALESCE(s.track,'') || ' ' || "
+        "s.speakers_text || ' ' || s.materials_text)"
+    )
+
+    def _like_where(self, terms: list[str]) -> tuple[str, list[str]]:
+        where = " AND ".join(f"{self._SEARCH_TEXT} LIKE ?" for _ in terms)
+        return where, [f"%{t}%" for t in terms]
+
+    def search_sessions_like(self, terms: list[str], limit: int | None = 50) -> list[sqlite3.Row]:
+        """Substring AND-search via LIKE (handles terms shorter than the trigram minimum).
+
+        ``terms`` come from ``[A-Za-z0-9]+`` tokens, so they contain no LIKE wildcards to escape.
+        Unranked; ordered newest-edition-first then title.
+        """
+        if not terms:
+            return []
+        where, params = self._like_where(terms)
+        limit_clause, limit_params = _limit_clause(limit)
+        return self.conn.execute(
+            f"""
+            SELECT s.id, s.title, s.track, s.speakers_text, e.name AS event_name
+            FROM sessions s JOIN events e ON e.id = s.event_id
+            WHERE {where}
+            ORDER BY e.year DESC, s.title
+            {limit_clause}
+            """,
+            (*params, *limit_params),
+        ).fetchall()
+
+    def count_sessions_like(self, terms: list[str]) -> int:
+        if not terms:
+            return 0
+        where, params = self._like_where(terms)
+        return self.conn.execute(
+            f"SELECT COUNT(*) FROM sessions s WHERE {where}", params
+        ).fetchone()[0]
 
     def get_session(self, session_id: int) -> sqlite3.Row | None:
         return self.conn.execute(

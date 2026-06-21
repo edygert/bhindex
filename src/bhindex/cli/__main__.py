@@ -6,6 +6,7 @@ so a future TUI/FastAPI front-end shares the exact same operations.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import typer
@@ -137,52 +138,92 @@ def events(data_dir: DataDir = _data_dir_opt) -> None:
 
 @app.command()
 def search(
-    query: str = typer.Argument(..., help="Full-text query over title/abstract/speakers/track."),
-    limit: int = typer.Option(20, "--limit", "-n"),
+    query: str = typer.Argument(..., help="Substring query over title/abstract/speakers/track/materials."),
+    limit: int = typer.Option(50, "--limit", "-n", help="Max results to show."),
+    show_all: bool = typer.Option(False, "--all", help="Show every match (ignores --limit)."),
+    json_out: bool = typer.Option(
+        False, "--json", help="Output full metadata of each hit as a JSON array (for piping)."
+    ),
     data_dir: DataDir = _data_dir_opt,
 ) -> None:
-    """Full-text search across harvested sessions."""
+    """Full-text (substring) search across harvested sessions."""
     with _container(data_dir) as app_:
-        rows = app_.search.search(query, limit)
+        rows = app_.search.search(query, None if show_all else limit)
+
+        if json_out:
+            # Pure JSON on stdout (no summary) so it pipes cleanly into jq etc.
+            details = app_.sessions.get_many([row["id"] for row in rows])
+            typer.echo(json.dumps([d.model_dump(mode="json") for d in details], indent=2))
+            return
+
+        total = app_.search.count(query)
         if not rows:
             typer.echo("(no matches)")
             return
         for row in rows:
             speakers = f" — {row['speakers_text']}" if row["speakers_text"] else ""
-            typer.echo(f"#{row['id']:<5} [{row['event_name']}] {row['title']}{speakers}")
-        typer.echo("\nUse 'bhindex show <id>' for full session detail.")
+            typer.echo(f"#{row['id']:<6} [{row['event_name']}] {row['title']}{speakers}")
+        # Summary goes to stderr so it never pollutes piped/redirected result rows on stdout.
+        if len(rows) < total:
+            typer.echo(f"showing {len(rows)} of {total} matches (use --all or -n to see more).", err=True)
+        else:
+            typer.echo(
+                f"{total} match{'es' if total != 1 else ''}. Use 'bhindex show <id>' for detail.",
+                err=True,
+            )
 
 
 @app.command()
 def show(
     session_id: int = typer.Argument(..., help="Session id (the #number from `search`)."),
+    json_out: bool = typer.Option(
+        False, "--json", help="Output the session's full metadata as a JSON object."
+    ),
     data_dir: DataDir = _data_dir_opt,
 ) -> None:
     """Show full detail for one session: speakers, abstract, and material links."""
     with _container(data_dir) as app_:
         s = app_.sessions.get(session_id)
         if s is None:
-            typer.secho(f"no session with id {session_id}", fg=typer.colors.RED)
+            typer.secho(f"no session with id {session_id}", fg=typer.colors.RED, err=True)
             raise typer.Exit(1)
 
+        if json_out:
+            typer.echo(json.dumps(s.model_dump(mode="json"), indent=2))
+            return
+
         typer.secho(s.title, bold=True)
-        meta = " · ".join(x for x in (s.event_name, s.track, s.room, s.starts_at) if x)
-        if meta:
-            typer.echo(meta)
+        typer.echo(f"ID:       #{s.id}  (slug {s.slug})")
+        typer.echo(f"Event:    {s.event_name} ({s.event_slug})")
+        if s.track:
+            typer.echo(f"Track:    {s.track}")
+        if s.room:
+            typer.echo(f"Location: {s.room}")
+        if s.starts_at:
+            typer.echo(f"When:     {s.starts_at}")
+        typer.echo(f"Source:   {s.source_url or '(none)'}")
+
         if s.speakers:
-            names = ", ".join(
-                sp.name + (f" ({sp.affiliation})" if sp.affiliation else "") for sp in s.speakers
-            )
-            typer.echo(f"Speakers: {names}")
-        typer.echo(f"Source:   {s.source_url}")
-        if s.abstract:
-            typer.echo(f"\n{s.abstract}")
-        if s.materials:
-            typer.echo("\nMaterials (links only — not downloaded):")
-            for m in s.materials:
-                typer.echo(f"  [{m.kind.value}] {m.title}  {m.url}")
+            typer.echo("\nSpeakers:")
+            for sp in s.speakers:
+                aff = f" — {sp.affiliation}" if sp.affiliation else ""
+                typer.echo(f"  {sp.name}{aff}")
+                if sp.bio:
+                    typer.echo(f"    {sp.bio}")
         else:
-            typer.echo("\nMaterials: none")
+            typer.echo("\nSpeakers: none recorded")
+
+        typer.echo("\nAbstract:")
+        typer.echo(s.abstract or "(none)")
+
+        if s.materials:
+            typer.echo("\nMaterials (links only — nothing is downloaded):")
+            for m in s.materials:
+                redundant = not m.title or m.title in ("Material", m.url)
+                title = "" if redundant else f"  ({m.title})"
+                typer.echo(f"  [{m.kind.value:10}] {m.url}{title}")
+        else:
+            typer.echo("\nMaterials: none recorded")
 
 
 @app.command()

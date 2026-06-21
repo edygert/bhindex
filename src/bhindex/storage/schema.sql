@@ -96,7 +96,8 @@ CREATE INDEX IF NOT EXISTS idx_materials_session ON materials(session_id);
 -- below keep it in sync. speakers_text is denormalized into sessions so a single trigger set covers it.
 CREATE VIRTUAL TABLE IF NOT EXISTS sessions_fts USING fts5(
     title, abstract, track, speakers_text, materials_text,
-    content='sessions', content_rowid='id'
+    content='sessions', content_rowid='id',
+    tokenize='trigram'
 );
 
 CREATE TRIGGER IF NOT EXISTS sessions_ai AFTER INSERT ON sessions BEGIN

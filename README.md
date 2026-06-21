@@ -52,14 +52,22 @@ uv run bhindex harvest us-24 --refresh      # re-download, ignoring the local ca
 # harvest shows a live progress monitor and a per-event validation report (anomalies / missing data).
 uv run bhindex stats                        # row counts + per-source/per-event coverage
 uv run bhindex events                       # list harvested events
-uv run bhindex search "kernel exploit"      # full-text search; prints a #id per result
+uv run bhindex search "kerne"               # substring search (trigram); prints a #id per result
+uv run bhindex search "malware" --all       # every match (default shows 50; -n to change)
+uv run bhindex search "ssh" --json | jq .   # full per-hit metadata as a JSON array (for piping)
 uv run bhindex show 1234                     # full detail for one session (speakers, abstract, links)
+uv run bhindex show 1234 --json             # that session's full metadata as a JSON object
 
 # offline / manually-saved page:
 uv run bhindex ingest-file ./sessions.json --url https://www.blackhat.com/us-24/briefings/schedule/sessions.json
 ```
 
 Editions are written as they appear in the URL: `us-24`, `eu-23`, `asia-24`.
+
+`search` is substring-based (FTS5 trigram tokenizer over title/abstract/speakers/track/material
+titles), so `kerne` finds `Kernel`; terms shorter than 3 characters fall back to a `LIKE` scan. Human
+output prints `#id` rows on stdout with the match-count summary on stderr (so it pipes cleanly);
+`--json` emits full per-hit metadata (`search` → JSON array, `show` → JSON object) on stdout.
 
 Data lives under `~/.local/share/bhindex/` (override with `--data-dir` or `BHINDEX_DATA_DIR`):
 `bhindex.sqlite3`, `snapshots/` (raw HTML/JSON captures for debugging + parser tests), `cache/`, and

@@ -1,6 +1,24 @@
 from bhindex.core.models import MaterialKind
 from bhindex.dto.contracts import EventDTO, SessionDTO, SpeakerDTO
 from bhindex.parsers import materials
+from bhindex.parsers.base import clean, strip_html
+
+
+def test_repairs_mojibake_and_strips_control_chars():
+    # Double-encoded UTF-8 (cp1252 mis-decode); the closing-quote mojibake embeds a C1 control
+    # char (\x9d) that a terminal treats as an escape and silently swallows following text.
+    raw = "founding member of â€œThe Diana Initiativeâ€\x9d. Iâ€™ll talk"
+    out = clean(raw)
+    assert '"The Diana Initiative"' in out
+    assert "I'll talk" in out
+    assert not any(0x80 <= ord(c) <= 0x9F for c in out)  # no C1 controls survive
+    # same repair through the HTML path
+    assert strip_html(f"<p>{raw}</p>").endswith("I'll talk")
+
+
+def test_preserves_legitimate_accented_text():
+    assert clean("Fabian Bäumer") == "Fabian Bäumer"
+    assert clean("Jens Müller") == "Jens Müller"
 
 
 def test_classify_by_extension_and_hint():

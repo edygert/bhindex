@@ -7,7 +7,7 @@ from importlib import resources
 
 from .db import require_fts5
 
-SCHEMA_VERSION = 2  # v2: sessions.materials_text added to sessions_fts (material titles searchable)
+SCHEMA_VERSION = 3  # v3: sessions_fts uses the trigram tokenizer (substring search)
 
 
 def _load_schema_sql() -> str:

@@ -36,3 +36,12 @@ class SessionService:
             speakers=speakers,
             materials=materials,
         )
+
+    def get_many(self, ids: list[int]) -> list[SessionDetailDTO]:
+        """Resolve several sessions to full detail, in the given order; skip ids that don't exist."""
+        out: list[SessionDetailDTO] = []
+        for session_id in ids:
+            detail = self.get(session_id)
+            if detail is not None:
+                out.append(detail)
+        return out
