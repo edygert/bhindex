@@ -1,0 +1,248 @@
+{
+ "sessions": {
+  "38293": {
+   "id": 38293,
+   "title": "Arbitrary Data Manipulation and Leakage with CPU Zero-Day Bugs on RISC-V",
+   "cancelled": 0,
+   "do_not_promote": 0,
+   "is_scheduled": 1,
+   "program": "Black Hat USA 2024 Briefings",
+   "track_1_id": 1887,
+   "track_1": "Hardware / Embedded",
+   "track_2_id": 1933,
+   "track_2": "Exploit Development & Vulnerability Discovery",
+   "discipline_1_id": "",
+   "discipline_1": "",
+   "discipline_2_id": "",
+   "discipline_2": "",
+   "maximum_capacity": null,
+   "format_id": 439,
+   "format": "Briefings",
+   "duration_id": 419,
+   "duration": "40-Minute",
+   "type_id": 18,
+   "type": "Briefings",
+   "recording": "TBD",
+   "themeID": "",
+   "themeName": "",
+   "room": "South Seas AB, Level 3",
+   "multiple_dates": 0,
+   "time_start": "2024-08-07 10:20am",
+   "time_end": "2024-08-07 11:00am",
+   "iso_start_date": "2024-08-07T10:20:00-07:00",
+   "iso_end_date": "2024-08-07T11:00:00-07:00",
+   "published_date": "2024-07-02",
+   "time_display": "Wednesday, August 7 | 10:20am-11:00am",
+   "scheduled_days": [
+    {
+     "day": "wednesday"
+    }
+   ],
+   "audience_level": "",
+   "description": "<p>In recent years, CPU vulnerabilities such as transient-execution attacks and architectural CPU bugs have threatened computing security. Most of these bugs impact x86 CPUs due to their complex and legacy features. RISC-V, as a new and open CPU architecture, has the potential to address these vulnerabilities through its design. RISC-V is already gaining popularity across various domains, including embedded devices, single-board computers, laptops, phones, and cloud deployments. In this talk, we unveil multiple architectural CPU vulnerabilities in off-the-shelf RISC-V CPUs. For this, we introduce a highly effective automated approach for identifying such vulnerabilities. Our automated approach discovers the most severe architectural vulnerability to date and 2 unprivileged \"halt-and-catch-fire\" instruction sequences. Our most severe finding, GhostWrite, allows an unprivileged attacker to arbitrarily modify the content of physical memory. GhostWrite can be exploited from within containerized and virtualized environments. Notably, it is also present in a cloud-deployed RISC-V CPU. We demonstrate how to use the primitive to exploit the on-site chip, interacting with peripherals, gaining root and executing code in the highest RISC-V privilege mode (machine-mode). We conclude by discussing mitigations and concrete proposals on how to make future CPUs more secure.<br></p>",
+   "marketing_description": null,
+   "sponsors": [],
+   "passes": [],
+   "public_tags": [],
+   "embedVideo": [],
+   "speakers": [
+    {
+     "person_id": 46725,
+     "role": "Speaker"
+    },
+    {
+     "person_id": 47752,
+     "role": "Contributor"
+    },
+    {
+     "person_id": 47488,
+     "role": "Speaker"
+    },
+    {
+     "person_id": 34785,
+     "role": "Contributor"
+    }
+   ],
+   "bh_files": {
+    "slides": {
+     "label": "Presentation Materials",
+     "url": "http://i.blackhat.com/BH-US-24/Presentations/US24-Thomas-Arbitrary-Data-Manipulation-and-Leakage-with-CPU-Zero-Day-Bugs-on-RISC-V-Wednesday.pdf"
+    },
+    "whitepaper": {
+     "label": "",
+     "url": ""
+    },
+    "source_code": {
+     "label": "",
+     "url": ""
+    }
+   }
+  },
+  "38297": {
+   "id": 38297,
+   "title": "Listen to the Whispers: Web Timing Attacks that Actually Work",
+   "cancelled": 0,
+   "do_not_promote": 0,
+   "is_scheduled": 1,
+   "program": "Black Hat USA 2024 Briefings",
+   "track_1_id": 1912,
+   "track_1": "Application Security: Offense",
+   "track_2_id": 1779,
+   "track_2": "Reverse Engineering",
+   "discipline_1_id": "",
+   "discipline_1": "",
+   "discipline_2_id": "",
+   "discipline_2": "",
+   "maximum_capacity": null,
+   "format_id": 439,
+   "format": "Briefings",
+   "duration_id": 419,
+   "duration": "40-Minute",
+   "type_id": 18,
+   "type": "Briefings",
+   "recording": "TBD",
+   "themeID": "",
+   "themeName": "",
+   "room": "Jasmine AE, Level 3",
+   "multiple_dates": 0,
+   "time_start": "2024-08-07 10:20am",
+   "time_end": "2024-08-07 11:00am",
+   "iso_start_date": "2024-08-07T10:20:00-07:00",
+   "iso_end_date": "2024-08-07T11:00:00-07:00",
+   "published_date": "2024-07-02",
+   "time_display": "Wednesday, August 7 | 10:20am-11:00am",
+   "scheduled_days": [
+    {
+     "day": "wednesday"
+    }
+   ],
+   "audience_level": "",
+   "description": "Websites are riddled with timing oracles eager to divulge their innermost secrets. It's time we started listening to them.<br><br>In this session, I'll unleash novel attack concepts to coax out server secrets including masked misconfigurations, blind data-structure injection, hidden routes to forbidden areas, and a vast expanse of invisible attack-surface.<br><br>This is not a theoretical threat; every technique will be illustrated with multiple real-world case studies on diverse targets. Unprecedented advances have made these attacks both accurate and efficient; in the space of ten seconds, you can now reliably detect a sub-millisecond differential with no prior configuration or 'lab conditions' required. In other words, I'm going to share timing attacks you can actually use. <br><br>To help, I'll equip you with a suite of battle-tested open-source tools enabling both hands-free automated exploitation, and custom attack scripting. I'll also share a little CTF to help you hone your new skillset.<br><br>Want to take things further? I'll help you transform your own attack ideas from theory to reality, by sharing a methodology refined through testing countless concepts on thousands of websites. We've neglected this omnipresent and incredibly powerful side-channel for too long.",
+   "marketing_description": null,
+   "sponsors": [],
+   "passes": [],
+   "public_tags": [],
+   "embedVideo": [],
+   "speakers": [
+    {
+     "person_id": 32347,
+     "role": "Speaker"
+    }
+   ],
+   "bh_files": {
+    "slides": {
+     "label": "Download Slides",
+     "url": "http://i.blackhat.com/BH-US-24/Presentations/US-24-Kettle-Listen-to-the-whispers-web-timing-attacks-that-actually-work.pdf"
+    },
+    "whitepaper": {
+     "label": "Download White Paper",
+     "url": "http://i.blackhat.com/BH-US-24/Presentations/US-24-Kettle-Listen-to-the-whispers-web-timing-attacks-that-actually-work-wp.pdf"
+    },
+    "source_code": {
+     "label": "Download Tool",
+     "url": "https://github.com/PortSwigger/param-miner"
+    }
+   }
+  },
+  "42215": {
+   "id": 42215,
+   "title": "Briefings Breakfast",
+   "cancelled": 0,
+   "do_not_promote": 0,
+   "is_scheduled": 1,
+   "program": "Black Hat USA 2024 Briefings",
+   "track_1_id": "",
+   "track_1": "",
+   "track_2_id": "",
+   "track_2": "",
+   "discipline_1_id": "",
+   "discipline_1": "",
+   "discipline_2_id": "",
+   "discipline_2": "",
+   "maximum_capacity": null,
+   "format_id": 0,
+   "format": "",
+   "duration_id": 0,
+   "duration": "",
+   "type_id": 18,
+   "type": "Briefings",
+   "recording": "TBD",
+   "themeID": "",
+   "themeName": "",
+   "room": "Michelob ULTRA Arena",
+   "multiple_dates": 0,
+   "time_start": "2024-08-07 8:00am",
+   "time_end": "2024-08-07 9:00am",
+   "iso_start_date": "2024-08-07T08:00:00-07:00",
+   "iso_end_date": "2024-08-07T09:00:00-07:00",
+   "published_date": "2024-07-22",
+   "time_display": "Wednesday, August 7 | 8:00am-9:00am",
+   "scheduled_days": [
+    {
+     "day": "wednesday"
+    }
+   ],
+   "audience_level": "",
+   "description": "<p>Breakfast will be served at 8:00 AM - 9:00 AM.</p><p><em><strong>Open to Briefings Passholders Only, so be sure to wear your badge.</strong></em></p>",
+   "marketing_description": null,
+   "sponsors": [],
+   "passes": [],
+   "public_tags": [],
+   "embedVideo": [],
+   "speakers": [],
+   "bh_files": []
+  }
+ },
+ "speakers": {
+  "32347": {
+   "person_id": 32347,
+   "first_name": "James",
+   "last_name": "Kettle",
+   "role": "Speaker",
+   "title": "Director of Research",
+   "company": "PortSwigger",
+   "bio": "<div><span>James 'albinowax' Kettle is the Director of Research at PortSwigger, the makers of Burp Suite. He's best known for pioneering novel web attack techniques, and publishing them at major conferences like Black Hat USA, at which he's presented for seven consecutive years.</span></div><div><span><br></span></div><div><span>He also loves exploring and advising on innovative tool concepts for security professionals, many of which have since become industry standard. Examples include introducing OAST via Burp Collaborator, bulk parameter discovery via Param Miner, billion-request attacks with Turbo Intruder, and human-style scanning with Backslash Powered Scanner.</span></div><div><span><br></span></div><div><span>His best-known research is HTTP Desync Attacks, which popularised HTTP Request Smuggling. Other popular attack techniques that can be traced back to his research include web cache poisoning, the single-packet attack, server-side template injection, and password reset poisoning. He's also the designer behind many of the topics and labs that make up the Web Security Academy. You can reach him on X, formerly known as Twitter, at @albinowax.</span></div>",
+   "has_photo": true
+  },
+  "34785": {
+   "person_id": 34785,
+   "first_name": "Michael",
+   "last_name": "Schwarz",
+   "role": "Contributor",
+   "title": "Faculty",
+   "company": "CISPA Helmholtz Center for Information Security",
+   "bio": "Michael Schwarz is Faculty at the CISPA Helmholtz Center for Information Security in Saarbruecken, Germany, with a focus on microarchitectural side-channel attacks and system security. He obtained his PhD with the title \"Software-based Side-Channel Attacks and Defenses in Restricted Environments\" in 2019 from Graz University of Technology. He holds two master's degrees, one in computer science and one in software engineering with a strong focus on security. He is a regular speaker at both academic and hacker conferences (7 times Black Hat, CCC, Blue Hat, etc.). He was part of one of the research teams that found the Meltdown, Spectre, Fallout, LVI, and PLATYPUS vulnerabilities, as well as the ZombieLoad vulnerability. He was also part of the KAISER patch, the basis for Meltdown countermeasures now deployed in every modern operating system under names such as KPTI or KVA Shadow.",
+   "has_photo": true
+  },
+  "47488": {
+   "person_id": 47488,
+   "first_name": "Lorenz",
+   "last_name": "Hetterich",
+   "role": "Speaker",
+   "title": "PhD Student",
+   "company": "CISPA Helmholtz Center for Information Security",
+   "bio": "<p>Lorenz Hetterich is a PhD student working at CISPA Helmholtz Center for Information Security in the group of Dr. Michael Schwarz. His research is focused on microarchitectural security of Arm devices. In the past, he has published papers on transient-execution and side channel attacks.</p>",
+   "has_photo": true
+  },
+  "46725": {
+   "person_id": 46725,
+   "first_name": "Fabian",
+   "last_name": "Thomas",
+   "role": "Speaker",
+   "title": "PhD Student",
+   "company": "CISPA Helmholtz Center for Information Security",
+   "bio": "Fabian Thomas is a PhD student working at CISPA Helmholtz Center for Information Security in the group of Dr. Michael Schwarz. His research focus is the security and compliance of new CPU architectures like RISC-V. In the past, he has published papers on transient-execution and fault-injection vulnerabilities like Meltdown and Rowhammer.",
+   "has_photo": true
+  },
+  "47752": {
+   "person_id": 47752,
+   "first_name": "Ruiyi",
+   "last_name": "Zhang",
+   "role": "Contributor",
+   "title": "PhD Student",
+   "company": "CISPA Helmholtz Center for Information Security",
+   "bio": "<p>Ruiyi Zhang is a PhD student in the Michael Schwarz' research group at CISPA Helmholtz Center for Information Security. His work focuses on architectural CPU vulnerabilities and side-channel attacks.</p>",
+   "has_photo": true
+  }
+ }
+}

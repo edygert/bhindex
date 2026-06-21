@@ -1,0 +1,46 @@
+[project]
+name = "bhindex"
+version = "0.1.0"
+description = "Local-first harvester and index for Black Hat conference session metadata"
+authors = [
+    { name = "Evan H. Dygert", email = "evand@dygertconsulting.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.27",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.2",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "typer>=0.12",
+]
+
+[project.scripts]
+bhindex = "bhindex.cli.__main__:app"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2",
+    "respx>=0.21",
+    "ruff>=0.5",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bhindex"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+# B008: Typer uses `Argument(...)`/`Option(...)` as parameter defaults by design.
+ignore = ["B008"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
