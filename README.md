@@ -48,6 +48,7 @@ uv run bhindex --help
 uv run bhindex init-db                      # create the database + FTS index
 uv run bhindex harvest us-24 eu-23 asia-24  # harvest one or more editions (metadata only)
 uv run bhindex harvest us-17                # 2017: materials backfilled from /docs automatically
+uv run bhindex harvest us-24 --refresh      # re-download, ignoring the local cache
 # harvest shows a live progress monitor and a per-event validation report (anomalies / missing data).
 uv run bhindex stats                        # row counts + per-source/per-event coverage
 uv run bhindex events                       # list harvested events
@@ -61,8 +62,14 @@ uv run bhindex ingest-file ./sessions.json --url https://www.blackhat.com/us-24/
 Editions are written as they appear in the URL: `us-24`, `eu-23`, `asia-24`.
 
 Data lives under `~/.local/share/bhindex/` (override with `--data-dir` or `BHINDEX_DATA_DIR`):
-`bhindex.sqlite3`, `snapshots/` (raw HTML/JSON captures for debugging + parser tests), and
+`bhindex.sqlite3`, `snapshots/` (raw HTML/JSON captures for debugging + parser tests), `cache/`, and
 `bhindex.log`.
+
+**Caching.** Wayback responses (feeds + CDX enumerations) are immutable, so each is cached under
+`cache/` and reused on later runs — re-processing after a parser change, and re-running a sweep, no
+longer re-download. Cached editions are served from disk (no network, no delay); only new/uncached
+editions are fetched, so a re-run is naturally incremental. Use `--refresh` to ignore the cache and
+pull fresh captures (e.g. for a just-finalized event).
 
 **Politeness.** The Wayback Machine rate-limits aggressively, so bhindex paces requests with a
 **5 s default delay + jitter**, a single continuously-paced client across a whole multi-edition run,

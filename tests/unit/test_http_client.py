@@ -2,7 +2,9 @@ import httpx
 import pytest
 import respx
 
+from bhindex.adapters.cache import FetchCache
 from bhindex.adapters.http_client import HttpClient
+from bhindex.core.config import load_settings
 from bhindex.core.errors import FetchError
 
 
@@ -29,3 +31,35 @@ def test_network_error_raises_after_retries(temp_settings):
     respx.get("https://h/c").mock(side_effect=httpx.ConnectError("boom"))
     with HttpClient(temp_settings) as client, pytest.raises(FetchError):
         client.get("https://h/c")
+
+
+@respx.mock
+def test_cache_serves_second_get_without_network(temp_settings, tmp_path):
+    cache = FetchCache(tmp_path / "cache")
+    route = respx.get("https://h/feed").mock(return_value=httpx.Response(200, text="DATA"))
+    with HttpClient(temp_settings, cache=cache) as client:
+        first = client.get("https://h/feed")
+        second = client.get("https://h/feed")  # should come from cache
+    assert first.text == second.text == "DATA"
+    assert route.call_count == 1  # network hit only once
+
+
+@respx.mock
+def test_refresh_bypasses_and_overwrites_cache(tmp_path):
+    cache = FetchCache(tmp_path / "cache")
+    cache.put("https://h/feed", 200, "OLD")
+    route = respx.get("https://h/feed").mock(return_value=httpx.Response(200, text="NEW"))
+    settings = load_settings(data_dir=tmp_path, request_delay=0.0, refresh=True)
+    with HttpClient(settings, cache=cache) as client:
+        resp = client.get("https://h/feed")
+    assert resp.text == "NEW" and route.call_count == 1
+    assert cache.get("https://h/feed").body == "NEW"  # cache refreshed
+
+
+@respx.mock
+def test_non_2xx_not_cached(temp_settings, tmp_path):
+    cache = FetchCache(tmp_path / "cache")
+    respx.get("https://h/missing").mock(return_value=httpx.Response(404))
+    with HttpClient(temp_settings, cache=cache) as client, pytest.raises(FetchError):
+        client.get("https://h/missing")
+    assert cache.get("https://h/missing") is None

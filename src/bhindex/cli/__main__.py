@@ -20,8 +20,12 @@ DataDir = Path | None
 _data_dir_opt = typer.Option(None, "--data-dir", help="Override the data directory (DB + snapshots).")
 
 
-def _container(data_dir: DataDir, *, ensure_schema: bool = True) -> ServiceContainer:
-    settings = load_settings(**({"data_dir": data_dir} if data_dir else {}))
+def _container(
+    data_dir: DataDir, *, ensure_schema: bool = True, **overrides: object
+) -> ServiceContainer:
+    if data_dir:
+        overrides["data_dir"] = data_dir
+    settings = load_settings(**overrides)
     return ServiceContainer(settings, ensure_schema=ensure_schema)
 
 
@@ -38,9 +42,15 @@ def harvest(
     editions: list[str] = typer.Argument(..., help="Editions, e.g. us-24 eu-23 asia-24"),
     backfill: bool = typer.Option(True, "--backfill/--no-backfill",
                                   help="Recover 2016/2017 material links from blackhat.com/docs."),
+    refresh: bool = typer.Option(False, "--refresh",
+                                 help="Re-download from Wayback, ignoring the local cache."),
     data_dir: DataDir = _data_dir_opt,
 ) -> None:
-    """Harvest one or more events from the Wayback-archived sessions.json feed (metadata only)."""
+    """Harvest one or more events from the Wayback-archived sessions.json feed (metadata only).
+
+    Responses are cached under the data dir and reused on subsequent runs, so re-processing and
+    incremental harvests don't re-download. Use --refresh to fetch fresh captures.
+    """
     from rich.console import Console
 
     console = Console()
@@ -73,7 +83,7 @@ def harvest(
         for err in report.errors:
             console.print(f"          ! {err}", style="red")
 
-    with _container(data_dir) as app_:
+    with _container(data_dir, refresh=refresh) as app_:
         with console.status("starting…", spinner="dots") as status:
             reports = app_.harvest.harvest_many(
                 editions,

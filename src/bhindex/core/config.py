@@ -55,6 +55,9 @@ class Settings(BaseSettings):
     timeout: float = 30.0
     user_agent: str = DEFAULT_UA
 
+    # caching: reuse stored Wayback responses instead of re-downloading. refresh=True re-fetches.
+    refresh: bool = False
+
     @property
     def db_path(self) -> Path:
         return self.data_dir / "bhindex.sqlite3"
@@ -64,12 +67,17 @@ class Settings(BaseSettings):
         return self.data_dir / "snapshots"
 
     @property
+    def cache_dir(self) -> Path:
+        return self.data_dir / "cache"
+
+    @property
     def log_file(self) -> Path:
         return self.data_dir / "bhindex.log"
 
     def ensure_dirs(self) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.snapshot_dir.mkdir(parents=True, exist_ok=True)
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
 
 
 def load_settings(**overrides: Any) -> Settings:

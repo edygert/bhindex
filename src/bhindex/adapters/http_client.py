@@ -15,6 +15,7 @@ from dataclasses import dataclass
 
 import httpx
 
+from bhindex.adapters.cache import FetchCache
 from bhindex.core.config import Settings
 from bhindex.core.errors import FetchError
 from bhindex.core.logging import get_logger
@@ -36,9 +37,11 @@ class HttpClient:
         client: httpx.Client | None = None,
         *,
         notify: Notify | None = None,
+        cache: FetchCache | None = None,
     ) -> None:
         self.settings = settings
         self.notify = notify
+        self.cache = cache
         self.log = get_logger()
         self._last_request = 0.0
         self._client = client or httpx.Client(
@@ -55,6 +58,12 @@ class HttpClient:
         self._last_request = time.monotonic()
 
     def get(self, url: str) -> HttpResponse:
+        # Cache-first: serve a stored response with no network and no throttle delay, unless refreshing.
+        if self.cache is not None and not self.settings.refresh:
+            hit = self.cache.get(url)
+            if hit is not None:
+                return HttpResponse(hit.status, hit.body, url)
+
         attempts = self.settings.max_retries + 1
         for attempt in range(1, attempts + 1):
             self._wait_turn()
@@ -70,6 +79,8 @@ class HttpClient:
                 continue
             if resp.status_code >= 400:
                 raise FetchError(f"HTTP {resp.status_code}", url=url, status=resp.status_code)
+            if self.cache is not None:
+                self.cache.put(url, resp.status_code, resp.text)
             return HttpResponse(resp.status_code, resp.text, str(resp.url))
         raise FetchError("exhausted retries", url=url)  # pragma: no cover
 

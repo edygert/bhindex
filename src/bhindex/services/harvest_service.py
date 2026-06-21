@@ -15,6 +15,7 @@ import json
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 
+from bhindex.adapters.cache import FetchCache
 from bhindex.adapters.fetchers import FileFetcher, WaybackFetcher
 from bhindex.adapters.http_client import HttpClient
 from bhindex.core.config import Settings
@@ -51,7 +52,8 @@ class HarvestService:
         if self._wayback is not None:
             yield self._wayback
             return
-        with HttpClient(self.settings, notify=notify) as client:
+        cache = FetchCache(self.settings.cache_dir)
+        with HttpClient(self.settings, notify=notify, cache=cache) as client:
             yield WaybackFetcher(client)
 
     # ------------------------------------------------------------------ public API
